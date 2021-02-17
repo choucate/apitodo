@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional, List
 
@@ -7,16 +9,19 @@ class Todo(BaseModel):
     name: str
     due_date: str
     description: str
+    status: str
 
 app = FastAPI(title="API TODO")
 
-# Create, Read, Update, Delete tasks
+templates = Jinja2Templates(directory="templates")
+
+# Create, Read, Update, Delete items
 
 store_todo = []
 
-@app.get('/')
-async def home():
-    return {"Hello": "Superloop"}
+@app.get("/APITODO/{id}", response_class=HTMLResponse)
+async def read(request: Request, id: int):
+    return templates.TemplateResponse("index.html", {"request": request, "id": id})
 
 @app.post('/todo/')
 async def create_todo(todo: Todo):
